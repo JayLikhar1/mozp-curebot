@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOZP-Curebot – AI Medical Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <div class="logo-icon">🩺</div>
+        <div class="logo-text">
+          <span class="logo-name">MOZP-Curebot</span>
+          <span class="logo-sub">AI Medical Assistant</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Language Selector -->
+        <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
+          <option value="en">🇬🇧 EN</option>
+          <option value="hi">🇮🇳 HI</option>
+          <option value="ur">🇵🇰 UR</option>
+        </select>
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Online</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== TAB NAV ===================== -->
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="chat">
+      <span class="tab-icon">💬</span><span>Chat</span>
+    </button>
+    <button class="tab-btn" data-tab="symptom">
+      <span class="tab-icon">🔍</span><span>Symptoms</span>
+    </button>
+    <button class="tab-btn" data-tab="bmi">
+      <span class="tab-icon">⚖️</span><span>BMI</span>
+    </button>
+    <button class="tab-btn" data-tab="medicine">
+      <span class="tab-icon">💊</span><span>Medicine</span>
+    </button>
+    <button class="tab-btn" data-tab="firstaid">
+      <span class="tab-icon">🏥</span><span>First Aid</span>
+    </button>
+    <button class="tab-btn" data-tab="diet">
+      <span class="tab-icon">🍎</span><span>Diet</span>
+    </button>
+    <button class="tab-btn" data-tab="bloodtest">
+      <span class="tab-icon">🩸</span><span>Blood Tests</span>
+    </button>
+    <button class="tab-btn" data-tab="tips">
+      <span class="tab-icon">💡</span><span>Tips</span>
+    </button>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main-content">
+
+    <!-- ========== TAB 1: CHAT ========== -->
+    <section id="tab-chat" class="tab-panel active">
+      <div class="chat-container">
+
+        <!-- Stats Dashboard -->
+        <div class="stats-bar" id="statsBar">
+          <div class="stat-item">
+            <span class="stat-num" id="statMessages">0</span>
+            <span class="stat-label">Messages</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="statTopics">0</span>
+            <span class="stat-label">Topics</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">24/7</span>
+            <span class="stat-label">Available</span>
+          </div>
+        </div>
+
+        <!-- Chat Search Bar -->
+        <div class="chat-search-bar" id="chatSearchBar" style="display:none;">
+          <input type="text" id="chatSearchInput" class="chat-search-input" placeholder="🔍 Search messages..." />
+          <button class="search-close-btn" onclick="closeChatSearch()">✕</button>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot-message">
+            <div class="message-avatar bot-avatar">🩺</div>
+            <div class="message-bubble">
+              <p>Hello! 👋 I'm <strong>Curebot</strong>, your AI medical assistant.</p>
+              <p>I can help with health questions, medicines, first aid, diet plans, and more. Try asking about:</p>
+              <ul>
+                <li>Symptoms like fever, cough, headache</li>
+                <li>Medicine information and dosage</li>
+                <li>Diet plans for diabetes, BP, weight</li>
+              </ul>
+              <p class="disclaimer-inline">⚠️ I provide general info only — not medical diagnosis.</p>
+            </div>
+            <span class="message-time">Now</span>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator" style="display:none;">
+          <div class="message-avatar bot-avatar">🩺</div>
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-wrap" id="progressBar" style="display:none;">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Suggestion Chips -->
+        <div class="suggestion-chips" id="suggestionChips">
+          <button class="chip" onclick="sendQuickMessage('I have a fever')">🌡️ Fever</button>
+          <button class="chip" onclick="sendQuickMessage('I have a headache')">🤕 Headache</button>
+          <button class="chip" onclick="sendQuickMessage('I have a cough')">😷 Cough</button>
+          <button class="chip" onclick="sendQuickMessage('Tell me about paracetamol')">💊 Medicine</button>
+          <button class="chip" onclick="sendQuickMessage('Diet plan for diabetes')">🥗 Diet</button>
+          <button class="chip" onclick="sendQuickMessage('First aid for burns')">🔥 First Aid</button>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-area">
+          <button class="search-btn" onclick="toggleChatSearch()" title="Search messages">🔍</button>
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask a health question..." autocomplete="off" />
+          <button class="send-btn" onclick="sendMessage()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 2: SYMPTOM CHECKER ========== -->
+    <section id="tab-symptom" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>🔍 Symptom Checker</h2>
+          <p>Select symptoms and get a health suggestion with risk level.</p>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="patient-info-row">
+          <div class="form-group">
+            <label class="input-label">Age</label>
+            <input type="number" id="symptomAge" class="form-input" placeholder="e.g. 25" min="1" max="120" />
+          </div>
+          <div class="form-group">
+            <label class="input-label">Gender</label>
+            <select id="symptomGender" class="form-input form-select">
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="input-label">Duration (days)</label>
+            <input type="number" id="symptomDuration" class="form-input" placeholder="e.g. 2" min="1" />
+          </div>
+        </div>
+
+        <!-- Body Map -->
+        <div class="body-map-section">
+          <label class="input-label">Tap body area to add symptoms:</label>
+          <div class="body-map">
+            <div class="body-figure">
+              <!-- Head -->
+              <div class="body-part head-part" onclick="addBodyPartSymptoms('head')" title="Head">
+                <div class="body-part-label">Head</div>
+              </div>
+              <!-- Chest -->
+              <div class="body-part chest-part" onclick="addBodyPartSymptoms('chest')" title="Chest">
+                <div class="body-part-label">Chest</div>
+              </div>
+              <!-- Abdomen -->
+              <div class="body-part abdomen-part" onclick="addBodyPartSymptoms('abdomen')" title="Abdomen">
+                <div class="body-part-label">Abdomen</div>
+              </div>
+              <!-- Arms -->
+              <div class="body-part arm-left" onclick="addBodyPartSymptoms('arms')" title="Arms">
+                <div class="body-part-label">Arms</div>
+              </div>
+              <div class="body-part arm-right" onclick="addBodyPartSymptoms('arms')" title="Arms"></div>
+              <!-- Legs -->
+              <div class="body-part leg-left" onclick="addBodyPartSymptoms('legs')" title="Legs">
+                <div class="body-part-label">Legs</div>
+              </div>
+              <div class="body-part leg-right" onclick="addBodyPartSymptoms('legs')" title="Legs"></div>
+            </div>
+            <div class="body-map-legend">
+              <p class="body-map-hint">👆 Tap a body part to add related symptoms</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Symptom Grid -->
+        <label class="input-label">Or select symptoms directly:</label>
+        <div class="symptom-grid" id="symptomGrid"></div>
+
+        <!-- Custom Symptom -->
+        <div class="custom-symptom-area">
+          <label class="input-label">Add custom symptom:</label>
+          <div class="custom-input-row">
+            <input type="text" id="customSymptomInput" class="form-input" placeholder="e.g. sore throat" />
+            <button class="btn-secondary" onclick="addCustomSymptom()">Add</button>
+          </div>
+        </div>
+
+        <!-- Selected Symptoms -->
+        <div class="selected-symptoms" id="selectedSymptomsDisplay" style="display:none;">
+          <label class="input-label">Selected symptoms:</label>
+          <div class="selected-chips" id="selectedChips"></div>
+        </div>
+
+        <button class="btn-primary full-width" onclick="checkSymptoms()">🔍 Check Symptoms</button>
+
+        <!-- Symptom History -->
+        <div class="history-section" id="symptomHistorySection" style="display:none;">
+          <div class="history-header">
+            <label class="input-label">📊 Recent Checks</label>
+            <button class="btn-text" onclick="clearSymptomHistory()">Clear</button>
+          </div>
+          <div id="symptomHistoryList"></div>
+        </div>
+
+        <!-- Result -->
+        <div class="result-card" id="symptomResult" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 3: BMI ========== -->
+    <section id="tab-bmi" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>⚖️ BMI Calculator</h2>
+          <p>Calculate BMI, BMR, calorie needs, and waist ratio.</p>
+        </div>
+
+        <div class="unit-toggle">
+          <button class="unit-btn active" id="metricBtn" onclick="setUnit('metric')">Metric (kg/cm)</button>
+          <button class="unit-btn" id="imperialBtn" onclick="setUnit('imperial')">Imperial (lbs/in)</button>
+        </div>
+
+        <div class="bmi-form">
+          <div class="bmi-row">
+            <div class="form-group">
+              <label class="input-label" id="heightLabel">Height (cm)</label>
+              <input type="number" id="heightInput" class="form-input" placeholder="e.g. 170" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="input-label" id="weightLabel">Weight (kg)</label>
+              <input type="number" id="weightInput" class="form-input" placeholder="e.g. 65" min="1" />
+            </div>
+          </div>
+          <div class="bmi-row">
+            <div class="form-group">
+              <label class="input-label">Age (optional)</label>
+              <input type="number" id="bmiAge" class="form-input" placeholder="e.g. 25" min="1" max="120" />
+            </div>
+            <div class="form-group">
+              <label class="input-label">Gender (optional)</label>
+              <select id="bmiGender" class="form-input form-select">
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="bmi-row">
+            <div class="form-group">
+              <label class="input-label" id="waistLabel">Waist (cm) optional</label>
+              <input type="number" id="waistInput" class="form-input" placeholder="e.g. 80" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="input-label">Activity Level</label>
+              <select id="activityLevel" class="form-input form-select">
+                <option value="sedentary">Sedentary (desk job)</option>
+                <option value="light">Light (1–3x/week)</option>
+                <option value="moderate" selected>Moderate (3–5x/week)</option>
+                <option value="active">Active (6–7x/week)</option>
+                <option value="veryactive">Very Active</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary full-width" onclick="calculateBMI()">⚖️ Calculate</button>
+
+        <!-- BMI Gauge -->
+        <div class="bmi-gauge-wrap" id="bmiGaugeWrap" style="display:none;">
+          <canvas id="bmiGauge" width="280" height="150"></canvas>
+          <div class="gauge-label" id="gaugeLabel"></div>
+        </div>
+
+        <div class="bmi-result" id="bmiResult" style="display:none;"></div>
+
+        <!-- BMI Scale -->
+        <div class="bmi-scale">
+          <h4>BMI Scale Reference</h4>
+          <div class="scale-items">
+            <div class="scale-item blue"><span class="scale-range">Below 18.5</span><span class="scale-label">Underweight</span></div>
+            <div class="scale-item green"><span class="scale-range">18.5–24.9</span><span class="scale-label">Normal</span></div>
+            <div class="scale-item orange"><span class="scale-range">25–29.9</span><span class="scale-label">Overweight</span></div>
+            <div class="scale-item red"><span class="scale-range">30+</span><span class="scale-label">Obese</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 4: MEDICINE INFO ========== -->
+    <section id="tab-medicine" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>💊 Medicine Info</h2>
+          <p>Search any medicine to get its use, dosage, and side effects.</p>
+        </div>
+
+        <div class="search-box-row">
+          <input type="text" id="medicineInput" class="form-input" placeholder="e.g. paracetamol, ibuprofen, cetirizine..." />
+          <button class="btn-primary" onclick="searchMedicine()">Search</button>
+        </div>
+
+        <!-- Quick medicine chips -->
+        <div class="med-chips">
+          <button class="chip" onclick="quickMedSearch('paracetamol')">Paracetamol</button>
+          <button class="chip" onclick="quickMedSearch('ibuprofen')">Ibuprofen</button>
+          <button class="chip" onclick="quickMedSearch('cetirizine')">Cetirizine</button>
+          <button class="chip" onclick="quickMedSearch('omeprazole')">Omeprazole</button>
+          <button class="chip" onclick="quickMedSearch('amoxicillin')">Amoxicillin</button>
+          <button class="chip" onclick="quickMedSearch('vitamin c')">Vitamin C</button>
+          <button class="chip" onclick="quickMedSearch('ors')">ORS</button>
+          <button class="chip" onclick="quickMedSearch('metformin')">Metformin</button>
+        </div>
+
+        <div id="medicineResult" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 5: FIRST AID ========== -->
+    <section id="tab-firstaid" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>🏥 First Aid Guide</h2>
+          <p>Step-by-step emergency guides. Tap any card to expand.</p>
+        </div>
+        <div class="firstaid-grid" id="firstaidGrid"></div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 6: DIET PLANNER ========== -->
+    <section id="tab-diet" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>🍎 Diet Planner</h2>
+          <p>Get a personalized meal plan based on your health condition.</p>
+        </div>
+
+        <div class="diet-condition-grid" id="dietConditionGrid">
+          <button class="diet-condition-btn" onclick="loadDietPlan('diabetes')">🩸 Diabetes</button>
+          <button class="diet-condition-btn" onclick="loadDietPlan('hypertension')">💊 High BP</button>
+          <button class="diet-condition-btn" onclick="loadDietPlan('weight loss')">⚖️ Weight Loss</button>
+          <button class="diet-condition-btn" onclick="loadDietPlan('weight gain')">💪 Weight Gain</button>
+          <button class="diet-condition-btn" onclick="loadDietPlan('heart disease')">❤️ Heart Disease</button>
+          <button class="diet-condition-btn" onclick="loadDietPlan('general')">🥗 General Health</button>
+        </div>
+
+        <div id="dietResult" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 7: BLOOD TESTS ========== -->
+    <section id="tab-bloodtest" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>🩸 Blood Test Guide</h2>
+          <p>Understand your blood test results in simple language.</p>
+        </div>
+        <div class="bloodtest-grid" id="bloodtestGrid"></div>
+      </div>
+    </section>
+
+    <!-- ========== TAB 8: HEALTH TIPS ========== -->
+    <section id="tab-tips" class="tab-panel">
+      <div class="card-container">
+        <div class="section-header">
+          <h2>💡 Daily Health Tips</h2>
+          <p>Simple habits for a healthier life.</p>
+        </div>
+        <div class="tips-grid" id="tipsGrid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="app-footer">
+    <p>⚠️ This chatbot is for <strong>informational purposes only</strong> and does not replace professional medical advice. Always consult a qualified doctor.</p>
+  </footer>
+
+  <!-- ===================== FIRST AID MODAL ===================== -->
+  <div class="modal-overlay" id="firstaidModal" style="display:none;" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- ===================== BLOOD TEST MODAL ===================== -->
+  <div class="modal-overlay" id="bloodtestModal" style="display:none;" onclick="closeBloodModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeBloodModal()">✕</button>
+      <div id="bloodModalContent"></div>
+    </div>
+  </div>
+
+</div><!-- end app-wrapper -->
+
+<!-- Medication Reminder Toast -->
+<div class="reminder-toast" id="reminderToast" style="display:none;">
+  <span id="reminderText"></span>
+  <button onclick="dismissReminder()">✕</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
