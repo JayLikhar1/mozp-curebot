@@ -22,8 +22,10 @@ const PORT = process.env.PORT || 3000;
 // Allow requests from the frontend origin (set via env var) + localhost for dev
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:5500',
   'http://127.0.0.1:5500',   // Live Server (VS Code)
-  process.env.FRONTEND_URL,  // e.g. https://mozp-curebot.vercel.app
+  'https://mozp-curebot.vercel.app', // production frontend (hardcoded fallback)
+  process.env.FRONTEND_URL,  // override via Render env var
 ].filter(Boolean);
 
 app.use(cors({
@@ -31,7 +33,9 @@ app.use(cors({
     // Allow requests with no origin (curl, Postman, Render health checks)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('CORS: origin not allowed — ' + origin));
+    // Log blocked origin for debugging, but don't crash
+    console.warn('CORS blocked origin:', origin);
+    callback(null, false);
   },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
