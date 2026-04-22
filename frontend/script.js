@@ -4,7 +4,7 @@
 
 const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
-  : 'https://mozp-curebot-api.onrender.com';
+  : 'https://mozp-curebot.onrender.com';
 let currentUnit = 'metric';
 let selectedSymptoms = [];
 let currentLang = 'en';
