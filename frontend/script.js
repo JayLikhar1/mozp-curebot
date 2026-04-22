@@ -2,7 +2,9 @@
 // MOZP-Curebot v2.0 - Complete Frontend Script
 // ============================================
 
-const API_URL = 'http://localhost:3000';
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : 'https://mozp-curebot-api.onrender.com';
 let currentUnit = 'metric';
 let selectedSymptoms = [];
 let currentLang = 'en';
@@ -67,7 +69,7 @@ async function sendMessage() {
   } catch (error) {
     showTyping(false);
     showProgress(false);
-    addMessage('?? Could not connect to server. Make sure backend is running on port 3000.', 'bot');
+    addMessage('⚠️ Could not connect to server. Make sure backend is running on port 3000.', 'bot');
   }
 }
 
@@ -85,7 +87,7 @@ function addMessage(text, sender) {
   
   messageDiv.innerHTML = `
     <div class="message-avatar ${sender === 'bot' ? 'bot-avatar' : 'user-avatar'}">
-      ${sender === 'bot' ? '??' : '??'}
+      ${sender === 'bot' ? '🩺' : '👤'}
     </div>
     <div class="message-bubble">
       ${formattedText}
@@ -146,22 +148,22 @@ document.getElementById('chatSearchInput')?.addEventListener('input', (e) => {
 // SYMPTOM CHECKER
 // ============================================
 const commonSymptoms = [
-  { label: '??? Fever', value: 'fever' },
-  { label: '?? Cough', value: 'cough' },
-  { label: '?? Headache', value: 'headache' },
-  { label: '?? Fatigue', value: 'fatigue' },
-  { label: '?? Runny Nose', value: 'runny nose' },
-  { label: '?? Nausea', value: 'nausea' },
-  { label: '?? Vomiting', value: 'vomiting' },
-  { label: '?? Stomach Pain', value: 'stomach pain' },
-  { label: '?? Shortness of Breath', value: 'shortness of breath' },
-  { label: '?? Dizziness', value: 'dizziness' },
-  { label: '?? Body Ache', value: 'body ache' },
-  { label: '?? Sore Throat', value: 'sore throat' },
-  { label: '?? Rash', value: 'rash' },
-  { label: '?? Chest Pain', value: 'chest pain' },
-  { label: '?? Chills', value: 'chills' },
-  { label: '?? Back Pain', value: 'back pain' }
+  { label: '🌡️ Fever', value: 'fever' },
+  { label: '😷 Cough', value: 'cough' },
+  { label: '🤕 Headache', value: 'headache' },
+  { label: '😴 Fatigue', value: 'fatigue' },
+  { label: '🤧 Runny Nose', value: 'runny nose' },
+  { label: '🤢 Nausea', value: 'nausea' },
+  { label: '🤮 Vomiting', value: 'vomiting' },
+  { label: '🫃 Stomach Pain', value: 'stomach pain' },
+  { label: '💨 Shortness of Breath', value: 'shortness of breath' },
+  { label: '💫 Dizziness', value: 'dizziness' },
+  { label: '🦴 Body Ache', value: 'body ache' },
+  { label: '😮 Sore Throat', value: 'sore throat' },
+  { label: '🩹 Rash', value: 'rash' },
+  { label: '❤️ Chest Pain', value: 'chest pain' },
+  { label: '🥶 Chills', value: 'chills' },
+  { label: '🦴 Back Pain', value: 'back pain' }
 ];
 
 const bodyPartSymptoms = {
@@ -237,7 +239,7 @@ function updateSelectedDisplay() {
   selectedSymptoms.forEach(symptom => {
     const tag = document.createElement('div');
     tag.className = 'selected-chip-tag';
-    tag.innerHTML = `${symptom} <button class="remove-chip" onclick="removeSymptom('${symptom}')">�</button>`;
+    tag.innerHTML = `${symptom} <button class="remove-chip" onclick="removeSymptom('${symptom}')">✕</button>`;
     chipsContainer.appendChild(tag);
   });
 }
@@ -253,7 +255,7 @@ function removeSymptom(value) {
 async function checkSymptoms() {
   if (selectedSymptoms.length === 0) {
     showSymptomResult({
-      condition: '?? No Symptoms Selected',
+      condition: '⚠️ No Symptoms Selected',
       severity: '',
       riskLevel: 0,
       advice: 'Please select at least one symptom.',
@@ -277,7 +279,7 @@ async function checkSymptoms() {
     saveSymptomHistory(data);
   } catch (error) {
     showSymptomResult({
-      condition: '?? Server Offline',
+      condition: '🔴 Server Offline',
       severity: 'Unknown',
       riskLevel: 0,
       advice: 'Could not connect to server.',
@@ -301,7 +303,7 @@ function showSymptomResult(data) {
     for (let i = 1; i <= 5; i++) {
       riskMeter += `<div class="risk-dot ${i <= data.riskLevel ? 'active' : ''}"></div>`;
     }
-    riskMeter += '</div><p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">Risk Level: ${data.riskLevel}/5</p>';
+    riskMeter += `</div><p style="font-size:12px;color:#8E8E93;margin-bottom:12px;">Risk Level: ${data.riskLevel}/5</p>`;
   }
   
   resultDiv.innerHTML = `
@@ -309,9 +311,9 @@ function showSymptomResult(data) {
     ${data.severity ? `<span class="result-severity ${severityClass}">${data.severity}</span>` : ''}
     ${riskMeter}
     <p class="result-advice">${data.advice}</p>
-    ${data.medicines ? `<p style="margin-bottom:12px;"><strong>?? Medicines:</strong> ${data.medicines}</p>` : ''}
-    ${data.erAdvice ? `<p style="margin-bottom:12px;"><strong>?? ER Advice:</strong> ${data.erAdvice}</p>` : ''}
-    ${data.disclaimer ? '<p class="result-disclaimer">?? This is general information only. Consult a doctor for proper diagnosis.</p>' : ''}
+    ${data.medicines ? `<p style="margin-bottom:12px;"><strong>💊 Medicines:</strong> ${data.medicines}</p>` : ''}
+    ${data.erAdvice ? `<p style="margin-bottom:12px;"><strong>🏥 ER Advice:</strong> ${data.erAdvice}</p>` : ''}
+    ${data.disclaimer ? '<p class="result-disclaimer">⚠️ This is general information only. Consult a doctor for proper diagnosis.</p>' : ''}
   `;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -338,7 +340,7 @@ function renderSymptomHistory() {
   section.style.display = 'block';
   list.innerHTML = symptomHistory.map(entry => `
     <div class="history-item">
-      <strong>${entry.date}</strong>: ${entry.symptoms} ? ${entry.condition}
+      <strong>${entry.date}</strong>: ${entry.symptoms} → ${entry.condition}
     </div>
   `).join('');
 }
@@ -406,7 +408,7 @@ function showBMIResult(data) {
   let bmrSection = '';
   if (data.bmr && data.tdee && data.calorieGoal) {
     bmrSection = `
-      <div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);margin-bottom:12px;">
+      <div style="background:#F2F2F7;padding:14px;border-radius:10px;margin-bottom:12px;">
         <p style="font-size:13px;margin-bottom:6px;"><strong>BMR (Basal Metabolic Rate):</strong> ${data.bmr} cal/day</p>
         <p style="font-size:13px;margin-bottom:6px;"><strong>TDEE (Total Daily Energy):</strong> ${data.tdee} cal/day</p>
         <p style="font-size:13px;margin-bottom:6px;"><strong>To maintain weight:</strong> ${data.calorieGoal.maintain} cal/day</p>
@@ -419,7 +421,7 @@ function showBMIResult(data) {
   let waistSection = '';
   if (data.waistRatio) {
     waistSection = `
-      <div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);margin-bottom:12px;">
+      <div style="background:#F2F2F7;padding:14px;border-radius:10px;margin-bottom:12px;">
         <p style="font-size:13px;margin-bottom:6px;"><strong>Waist-to-Height Ratio:</strong> ${data.waistRatio.ratio}</p>
         <p style="font-size:13px;color:${colorMap[data.waistRatio.color]};">${data.waistRatio.category}</p>
       </div>
@@ -429,21 +431,21 @@ function showBMIResult(data) {
   let weightGoal = '';
   if (data.weightDiff) {
     if (data.weightDiff.direction === 'lose') {
-      weightGoal = `<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">To reach ideal weight: <strong>Lose ${data.weightDiff.value} ${data.weightDiff.unit}</strong></p>`;
+      weightGoal = `<p style="font-size:13px;color:#3C3C43;margin-bottom:12px;">To reach ideal weight: <strong>Lose ${data.weightDiff.value} ${data.weightDiff.unit}</strong></p>`;
     } else if (data.weightDiff.direction === 'gain') {
-      weightGoal = `<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">To reach ideal weight: <strong>Gain ${data.weightDiff.value} ${data.weightDiff.unit}</strong></p>`;
+      weightGoal = `<p style="font-size:13px;color:#3C3C43;margin-bottom:12px;">To reach ideal weight: <strong>Gain ${data.weightDiff.value} ${data.weightDiff.unit}</strong></p>`;
     }
   }
   
   resultDiv.innerHTML = `
     <div class="bmi-number" style="color: ${bmiColor}">${data.bmi}</div>
     <div class="bmi-category" style="color: ${bmiColor}">${data.emoji} ${data.category}</div>
-    <div class="bmi-ideal">Ideal weight: <strong>${data.idealWeightRange.min}�${data.idealWeightRange.max} ${data.idealWeightRange.unit}</strong></div>
+    <div class="bmi-ideal">Ideal weight: <strong>${data.idealWeightRange.min}–${data.idealWeightRange.max} ${data.idealWeightRange.unit}</strong></div>
     ${weightGoal}
     ${bmrSection}
     ${waistSection}
     <div class="bmi-advice-text">${data.advice}</div>
-    <p class="result-disclaimer">?? BMI is a general screening tool. Consult a doctor for complete assessment.</p>
+    <p class="result-disclaimer">⚠️ BMI is a general screening tool. Consult a doctor for complete assessment.</p>
   `;
   
   drawBMIGauge(data.bmi, bmiColor);
@@ -555,13 +557,13 @@ function showMedicineResult(data) {
       <span class="result-severity severity-mild">${data.category}</span>
       
       <div style="margin-top:16px;">
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? Use:</strong> ${data.use}</p>
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? Dosage:</strong> ${data.dosage}</p>
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? Side Effects:</strong> ${data.sideEffects}</p>
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? Warnings:</strong> ${data.warnings}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>✅ Use:</strong> ${data.use}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>💊 Dosage:</strong> ${data.dosage}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>⚠️ Side Effects:</strong> ${data.sideEffects}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>🚨 Warnings:</strong> ${data.warnings}</p>
       </div>
       
-      ${data.disclaimer ? '<p class="result-disclaimer">?? Always follow your doctor\'s prescription. Do not self-medicate.</p>' : ''}
+      ${data.disclaimer ? '<p class="result-disclaimer">⚠️ Always follow your doctor\'s prescription. Do not self-medicate.</p>' : ''}
     </div>
   `;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -594,7 +596,7 @@ function renderFirstAidGrid(guides) {
       </div>
       <div class="firstaid-content">
         <div class="firstaid-title">${guide.title}</div>
-        <span class="firstaid-severity" style="background:${guide.color === 'red' ? '#FFE5E5' : guide.color === 'orange' ? '#FFF3E0' : '#E8F2FF'};color:${guide.color === 'red' ? 'var(--danger)' : guide.color === 'orange' ? 'var(--warning)' : 'var(--primary)'}">
+        <span class="firstaid-severity" style="background:${guide.color === 'red' ? '#FFE5E5' : guide.color === 'orange' ? '#FFF3E0' : '#E8F2FF'};color:${guide.color === 'red' ? '#FF3B30' : guide.color === 'orange' ? '#FF9500' : '#007AFF'}">
           ${guide.severity}
         </span>
       </div>
@@ -615,19 +617,19 @@ async function openFirstAidModal(id) {
       <span class="result-severity ${guide.severity.includes('Emergency') ? 'severity-emergency' : 'severity-moderate'}">${guide.severity}</span>
       
       <div style="margin-top:20px;">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">?? Steps:</h3>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">📋 Steps:</h3>
         <ol style="padding-left:20px;line-height:1.8;">
           ${guide.steps.map(step => `<li style="margin-bottom:8px;">${step}</li>`).join('')}
         </ol>
       </div>
       
-      <div style="margin-top:20px;padding:14px;background:#FFE5E5;border-radius:var(--radius-md);border-left:4px solid var(--danger);">
-        <p style="font-size:14px;font-weight:700;margin-bottom:6px;">?? When to go to ER:</p>
+      <div style="margin-top:20px;padding:14px;background:#FFE5E5;border-radius:10px;border-left:4px solid #FF3B30;">
+        <p style="font-size:14px;font-weight:700;margin-bottom:6px;">🚨 When to go to ER:</p>
         <p style="font-size:14px;">${guide.goToER}</p>
       </div>
       
-      <div style="margin-top:16px;padding:12px;background:var(--primary-light);border-radius:var(--radius-md);">
-        <p style="font-size:13px;color:var(--primary);">${guide.tip}</p>
+      <div style="margin-top:16px;padding:12px;background:rgba(0,122,255,0.1);border-radius:10px;">
+        <p style="font-size:13px;color:#007AFF;">${guide.tip}</p>
       </div>
     `;
     
@@ -665,35 +667,35 @@ function showDietResult(data) {
   resultDiv.innerHTML = `
     <div class="result-card ${data.color}">
       <h3 style="font-size:20px;margin-bottom:8px;">${data.title}</h3>
-      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;"><strong>Goal:</strong> ${data.goal}</p>
+      <p style="font-size:14px;color:#3C3C43;margin-bottom:16px;"><strong>Goal:</strong> ${data.goal}</p>
       
       <div style="margin-bottom:16px;">
-        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">? Foods to Eat:</h4>
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">✅ Foods to Eat:</h4>
         <ul style="padding-left:20px;line-height:1.8;">
           ${data.doEat.map(item => `<li>${item}</li>`).join('')}
         </ul>
       </div>
       
       <div style="margin-bottom:16px;">
-        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">? Foods to Avoid:</h4>
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">🚫 Foods to Avoid:</h4>
         <ul style="padding-left:20px;line-height:1.8;">
           ${data.avoid.map(item => `<li>${item}</li>`).join('')}
         </ul>
       </div>
       
-      <div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);margin-bottom:16px;">
-        <h4 style="font-size:16px;font-weight:700;margin-bottom:12px;">??? Sample Day:</h4>
+      <div style="background:#F2F2F7;padding:14px;border-radius:10px;margin-bottom:16px;">
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:12px;">🍽️ Sample Day:</h4>
         <p style="font-size:14px;margin-bottom:6px;"><strong>Breakfast:</strong> ${data.sampleDay.breakfast}</p>
         <p style="font-size:14px;margin-bottom:6px;"><strong>Lunch:</strong> ${data.sampleDay.lunch}</p>
         <p style="font-size:14px;margin-bottom:6px;"><strong>Snack:</strong> ${data.sampleDay.snack}</p>
         <p style="font-size:14px;"><strong>Dinner:</strong> ${data.sampleDay.dinner}</p>
       </div>
       
-      <div style="padding:12px;background:var(--primary-light);border-radius:var(--radius-md);margin-bottom:12px;">
-        <p style="font-size:13px;color:var(--primary);">${data.tip}</p>
+      <div style="padding:12px;background:rgba(0,122,255,0.1);border-radius:10px;margin-bottom:12px;">
+        <p style="font-size:13px;color:#007AFF;">${data.tip}</p>
       </div>
       
-      ${data.disclaimer ? '<p class="result-disclaimer">?? Consult a nutritionist or doctor for a personalized diet plan.</p>' : ''}
+      ${data.disclaimer ? '<p class="result-disclaimer">⚠️ Consult a nutritionist or doctor for a personalized diet plan.</p>' : ''}
     </div>
   `;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -738,22 +740,22 @@ async function openBloodTestModal(id) {
       <span class="result-severity severity-mild">${test.category}</span>
       
       <div style="margin-top:20px;">
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? What it measures:</strong> ${test.whatItMeasures}</p>
-        <p style="font-size:14px;margin-bottom:12px;"><strong>?? Why done:</strong> ${test.whyDone}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>🔬 What it measures:</strong> ${test.whatItMeasures}</p>
+        <p style="font-size:14px;margin-bottom:12px;"><strong>📋 Why done:</strong> ${test.whyDone}</p>
       </div>
       
-      <div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);margin:16px 0;">
-        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">?? Normal Ranges:</h4>
+      <div style="background:#F2F2F7;padding:14px;border-radius:10px;margin:16px 0;">
+        <h4 style="font-size:16px;font-weight:700;margin-bottom:8px;">📊 Normal Ranges:</h4>
         <ul style="padding-left:20px;line-height:1.8;">
           ${test.normalRanges.map(range => `<li>${range}</li>`).join('')}
         </ul>
       </div>
       
-      <p style="font-size:14px;margin-bottom:12px;"><strong>?? High means:</strong> ${test.highMeans}</p>
-      <p style="font-size:14px;margin-bottom:12px;"><strong>?? Low means:</strong> ${test.lowMeans}</p>
+      <p style="font-size:14px;margin-bottom:12px;"><strong>🔴 High means:</strong> ${test.highMeans}</p>
+      <p style="font-size:14px;margin-bottom:12px;"><strong>🔵 Low means:</strong> ${test.lowMeans}</p>
       
-      <div style="padding:12px;background:var(--primary-light);border-radius:var(--radius-md);margin-top:16px;">
-        <p style="font-size:13px;color:var(--primary);">${test.tip}</p>
+      <div style="padding:12px;background:rgba(0,122,255,0.1);border-radius:10px;margin-top:16px;">
+        <p style="font-size:13px;color:#007AFF;">${test.tip}</p>
       </div>
     `;
     
@@ -771,16 +773,16 @@ function closeBloodModal() {
 // HEALTH TIPS
 // ============================================
 const healthTips = [
-  { icon: '??', color: '#E8F2FF', title: 'Stay Hydrated', desc: 'Drink at least 8 glasses (2 liters) of water daily. Proper hydration improves energy, skin health, and digestion.' },
-  { icon: '??', color: '#E8F8EE', title: 'Eat a Balanced Diet', desc: 'Include fruits, vegetables, whole grains, lean proteins, and healthy fats. Avoid processed and junk food.' },
-  { icon: '??', color: '#FFF3E0', title: 'Exercise Regularly', desc: 'Aim for 30 minutes of moderate exercise at least 5 days a week. Walking, cycling, or yoga are great.' },
-  { icon: '??', color: '#F3E8FF', title: 'Get Enough Sleep', desc: 'Adults need 7�9 hours of quality sleep per night. Good sleep boosts immunity, mood, and cognitive function.' },
-  { icon: '??', color: '#E8F8EE', title: 'Manage Stress', desc: 'Practice deep breathing, meditation, or journaling. Chronic stress weakens your immune system.' },
-  { icon: '??', color: '#FFE5E5', title: 'Avoid Smoking & Alcohol', desc: 'Smoking and excessive alcohol increase risk of cancer, heart disease, and liver damage.' },
-  { icon: '??', color: '#E8F2FF', title: 'Maintain Oral Hygiene', desc: 'Brush twice daily, floss regularly, and visit a dentist every 6 months.' },
-  { icon: '??', color: '#FFF8EC', title: 'Get Some Sunlight', desc: 'Spend 15�20 minutes in morning sunlight daily. It boosts Vitamin D and improves mood.' },
-  { icon: '??', color: '#E8F8EE', title: 'Stay Socially Connected', desc: 'Maintain healthy relationships. Social connection reduces stress and improves mental wellbeing.' },
-  { icon: '??', color: '#E8F2FF', title: 'Regular Health Checkups', desc: 'Visit your doctor for annual checkups even when healthy. Early detection leads to better outcomes.' }
+  { icon: '💧', color: '#E8F2FF', title: 'Stay Hydrated', desc: 'Drink at least 8 glasses (2 liters) of water daily. Proper hydration improves energy, skin health, and digestion.' },
+  { icon: '🥗', color: '#E8F8EE', title: 'Eat a Balanced Diet', desc: 'Include fruits, vegetables, whole grains, lean proteins, and healthy fats. Avoid processed and junk food.' },
+  { icon: '🏃', color: '#FFF3E0', title: 'Exercise Regularly', desc: 'Aim for 30 minutes of moderate exercise at least 5 days a week. Walking, cycling, or yoga are great.' },
+  { icon: '😴', color: '#F3E8FF', title: 'Get Enough Sleep', desc: 'Adults need 7–9 hours of quality sleep per night. Good sleep boosts immunity, mood, and cognitive function.' },
+  { icon: '🧘', color: '#E8F8EE', title: 'Manage Stress', desc: 'Practice deep breathing, meditation, or journaling. Chronic stress weakens your immune system.' },
+  { icon: '🚭', color: '#FFE5E5', title: 'Avoid Smoking & Alcohol', desc: 'Smoking and excessive alcohol increase risk of cancer, heart disease, and liver damage.' },
+  { icon: '🦷', color: '#E8F2FF', title: 'Maintain Oral Hygiene', desc: 'Brush twice daily, floss regularly, and visit a dentist every 6 months.' },
+  { icon: '☀️', color: '#FFF8EC', title: 'Get Some Sunlight', desc: 'Spend 15–20 minutes in morning sunlight daily. It boosts Vitamin D and improves mood.' },
+  { icon: '🤝', color: '#E8F8EE', title: 'Stay Socially Connected', desc: 'Maintain healthy relationships. Social connection reduces stress and improves mental wellbeing.' },
+  { icon: '🩺', color: '#E8F2FF', title: 'Regular Health Checkups', desc: 'Visit your doctor for annual checkups even when healthy. Early detection leads to better outcomes.' }
 ];
 
 function renderHealthTips() {
@@ -806,11 +808,11 @@ function setMedicationReminder(medicine, time) {
   
   if (delay > 0) {
     setTimeout(() => {
-      showReminderToast(`?? Time to take ${medicine}`);
+      showReminderToast(`💊 Time to take ${medicine}`);
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('MOZP-Curebot Reminder', {
           body: `Time to take ${medicine}`,
-          icon: '??'
+          icon: '🩺'
         });
       }
     }, delay);
