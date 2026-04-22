@@ -16,10 +16,27 @@ const dietRoutes     = require('./routes/diet');
 const bloodtestRoutes= require('./routes/bloodtest');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// ---- Middleware ----
-app.use(cors());
+// ---- CORS ----
+// Allow requests from the frontend origin (set via env var) + localhost for dev
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:5500',   // Live Server (VS Code)
+  process.env.FRONTEND_URL,  // e.g. https://mozp-curebot.vercel.app
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, Render health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('CORS: origin not allowed — ' + origin));
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.json());
 
 // ---- Routes ----
@@ -41,5 +58,6 @@ app.get('/', (req, res) => {
 
 // ---- Start Server ----
 app.listen(PORT, () => {
-  console.log(`✅ MOZP-Curebot v2.0 running at http://localhost:${PORT}`);
+  console.log(`✅ MOZP-Curebot v2.0 running on port ${PORT}`);
+  console.log(`✅ Allowed origins: ${allowedOrigins.join(', ')}`);
 });
